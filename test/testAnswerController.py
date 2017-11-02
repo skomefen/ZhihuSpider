@@ -1,4 +1,4 @@
-from controller.Controller import Controller
+from controller.QuestionController import QuestionController
 from dao.Dao import Dao
 from view.View import View
 
@@ -8,7 +8,7 @@ spider_dao = Dao()
 
 spider_view = View()
 
-c = Controller(url=base_url,dao=spider_dao,view=spider_view)
+c = QuestionController(url=base_url, dao=spider_dao, view=spider_view)
 
 
 def test_get_html():
@@ -23,6 +23,13 @@ def test_parse_html():
 def test_save_dao():
     c.save_dao('aaaaaaa')
 
+def test_get_answer_nums():
+    nums = c.get_answer_num(base_url)
+    print(nums)
+    print(type(nums))
+
 test_get_html()
-test_parse_html()
-test_save_dao()
+#test_parse_html()
+#test_save_dao()
+#test_get_answer_nums()
+
