@@ -8,7 +8,7 @@ spider_dao = Dao()
 
 spider_view = View()
 
-c = QuestionController(url=base_url, dao=spider_dao, view=spider_view)
+c = QuestionController(url=base_url)
 
 
 def test_get_html():

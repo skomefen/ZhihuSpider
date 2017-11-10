@@ -16,9 +16,11 @@ class QuestionController:
         self.view = View()
         self.save_file_name = save_file_name
 
-    def get_html(self,url):
+    def get_html(self,url=None):
         #driver = webdriver.PhantomJS()
 
+        if url == None:
+            url = self.url
         try:
             begin = datetime.datetime.now()
             print('start get page',begin)
