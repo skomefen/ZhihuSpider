@@ -1,5 +1,5 @@
 from dao.QuestionDao import QuestionDao
-from dao.ConnManager import DaoManager
+from dao.ConnManager import ConnManager
 
 q = QuestionDao()
 

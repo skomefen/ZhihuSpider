@@ -1,5 +1,5 @@
 from dao.TopicDao import TopicDao
-from dao.ConnManager import DaoManager
+from dao.ConnManager import ConnManager
 
 t = TopicDao()
 

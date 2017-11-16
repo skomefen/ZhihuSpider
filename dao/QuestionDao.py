@@ -1,10 +1,10 @@
-from dao.ConnManager import DaoManager
+from dao.ConnManager import ConnManager
 
 
 class QuestionDao:
 
     def __init__(self):
-        conn = DaoManager().get_conn()
+        conn = ConnManager().get_conn()
         # 表不存在就创建表
         tableIsOK = False
         try:
@@ -16,14 +16,14 @@ class QuestionDao:
         except Exception as e:
             print('表已存在')
         finally:
-            DaoManager().conn_commit()
+            ConnManager().conn_commit()
 
     def save_question(self, question):
         try:
             self.find_question(question['id'])
             self.update_question(question)
         except:
-            conn = DaoManager().get_conn()
+            conn = ConnManager().get_conn()
             c = conn.cursor()
             try:
                 sql = 'insert into question (id, title,url) values (?,?,?)'
@@ -33,10 +33,10 @@ class QuestionDao:
                 print('保存失败，错误:' + e)
             finally:
                 # conn.commit()
-                DaoManager().conn_commit()
+                ConnManager().conn_commit()
 
     def find_question(self, id):
-        conn = DaoManager().get_conn()
+        conn = ConnManager().get_conn()
         c = conn.cursor()
         try:
             sql = 'select * from question where id = ?'
@@ -47,11 +47,11 @@ class QuestionDao:
             print('查询失败，错误:' + e)
         finally:
             # conn.commit()
-            DaoManager().conn_commit()
+            ConnManager().conn_commit()
         return user
 
     def update_question(self, question):
-        conn = DaoManager().get_conn()
+        conn = ConnManager().get_conn()
         c = conn.cursor()
         try:
             sql = 'update question set title = ?,url = ? where id = ?'
@@ -61,4 +61,4 @@ class QuestionDao:
             print('更新失败，错误:' + e)
         finally:
             # conn.commit()
-            DaoManager().conn_commit()
+            ConnManager().conn_commit()

@@ -1,5 +1,5 @@
 from dao.UserDao import UserDao
-from dao.ConnManager import DaoManager
+from dao.ConnManager import ConnManager
 
 u = UserDao()
 

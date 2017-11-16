@@ -2,13 +2,13 @@ import sqlite3
 from conf import dao_config
 import os
 
-class DaoManager:
+class ConnManager:
     
     #单例设计
     __instance = None
     _conn = None
     def __init__(self):
-        if DaoManager._conn == None:
+        if ConnManager._conn == None:
             try:
                 if dao_config.DATABASE_SAVE_PATH == None:
                     save_path = ''
@@ -21,30 +21,30 @@ class DaoManager:
                     database_name = dao_config.DATABASE_NAME
                 sep = os.path.sep
                 #_conn等于None的时候重新获取
-                DaoManager._conn = sqlite3.connect(save_path+sep+database_name)
+                ConnManager._conn = sqlite3.connect(save_path + sep + database_name)
             except:
                 print('连接数据库失败,检查dao_config配置文件')
 
     def __new__(cls, *args, **kwd):
-        if DaoManager.__instance is None:
-            DaoManager.__instance = object.__new__(cls, *args, **kwd)
-        return DaoManager.__instance
+        if ConnManager.__instance is None:
+            ConnManager.__instance = object.__new__(cls, *args, **kwd)
+        return ConnManager.__instance
 
     def get_conn(self):
         """
         :return: 数据库连接
         """
-        return DaoManager._conn
+        return ConnManager._conn
 
     def conn_commit(self):
-        DaoManager._conn.commit()
+        ConnManager._conn.commit()
 
     def conn_close(self):
 
         try:
-            if DaoManager._conn.in_transaction:
-                DaoManager._conn.commit()
+            if ConnManager._conn.in_transaction:
+                ConnManager._conn.commit()
         finally:
-            DaoManager._conn.close()
-            DaoManager._conn = None
+            ConnManager._conn.close()
+            ConnManager._conn = None
         

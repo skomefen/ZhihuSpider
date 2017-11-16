@@ -1,10 +1,10 @@
-from dao.ConnManager import DaoManager
+from dao.ConnManager import ConnManager
 
 
 class Topic_QuestionDao:
 
     def __init__(self):
-        conn = DaoManager().get_conn()
+        conn = ConnManager().get_conn()
         # 表不存在就创建表
         tableIsOK = False
         try:
@@ -16,11 +16,11 @@ class Topic_QuestionDao:
         except Exception as e:
             print('表已存在')
         finally:
-            DaoManager().conn_commit()
+            ConnManager().conn_commit()
 
     def save_topic_question(self, topic_question):
 
-        conn = DaoManager().get_conn()
+        conn = ConnManager().get_conn()
         c = conn.cursor()
         try:
             sql = 'insert into topic_question (topic_id, question_id) values (?,?)'
@@ -30,6 +30,6 @@ class Topic_QuestionDao:
             print('保存失败,或者该数据已存在，错误:' + e)
         finally:
             # conn.commit()
-            DaoManager().conn_commit()
+            ConnManager().conn_commit()
 
 
