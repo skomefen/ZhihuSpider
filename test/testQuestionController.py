@@ -1,5 +1,5 @@
 from controller.QuestionController import QuestionController
-from dao.Dao import Dao
+from dao.save_md import Dao
 from view.View import View
 
 base_url = 'https://www.zhihu.com/question/20363696'

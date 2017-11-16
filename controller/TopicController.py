@@ -8,7 +8,7 @@ from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
 
 from util.Signal import signal
-from dao.Dao import Dao
+from dao.save_md import Dao
 from util import SpiderUtil
 
 
@@ -134,7 +134,7 @@ class TopicController:
             #得到所有页面的问题
             executor.submit(self.join_all_question_list,s, question_list, question_queue, even)
 
-        #等待t1线程完成
+        #等待上面线程完成
         even.wait()
         #去重复
         question_list = SpiderUtil.romve_same_dict_with_list('question_name',question_list)

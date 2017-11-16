@@ -20,6 +20,7 @@ class DaoManager:
                 else:
                     database_name = dao_config.DATABASE_NAME
                 sep = os.path.sep
+                #_conn等于None的时候重新获取
                 DaoManager._conn = sqlite3.connect(save_path+sep+database_name)
             except:
                 print('连接数据库失败,检查dao_config配置文件')
@@ -40,7 +41,10 @@ class DaoManager:
 
     def conn_close(self):
 
-        if DaoManager._conn.in_transaction:
-            DaoManager._conn.commit()
-
-        DaoManager._conn.close()
+        try:
+            if DaoManager._conn.in_transaction:
+                DaoManager._conn.commit()
+        finally:
+            DaoManager._conn.close()
+            DaoManager._conn = None
+        

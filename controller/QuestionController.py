@@ -4,9 +4,9 @@ from selenium import webdriver
 import re
 import datetime
 import time
-import config
+from conf import config
 from view.View import View
-from dao.Dao import Dao
+from dao.save_md import Dao
 
 class QuestionController:
 
