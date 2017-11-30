@@ -1,10 +1,11 @@
 from controller.QuestionController import QuestionController
-from dao.save_md import Dao
+from dao.save_md import save_md
 from view.View import View
+from bs4 import BeautifulSoup
 
-base_url = 'https://www.zhihu.com/question/20363696'
+base_url = 'https://www.zhihu.com/question/31361871'
 
-spider_dao = Dao()
+spider_dao = save_md()
 
 spider_view = View()
 
@@ -13,7 +14,8 @@ c = QuestionController(url=base_url)
 
 def test_get_html():
     text = c.get_html(base_url)
-    print(text)
+    soup = BeautifulSoup(text, 'lxml')
+    print(soup.prettify())
 
 def test_parse_html():
     text = c.get_html(base_url)
@@ -28,8 +30,11 @@ def test_get_answer_nums():
     print(nums)
     print(type(nums))
 
-test_get_html()
+def test_execute():
+    c.execute()
+
+#test_get_html()
 #test_parse_html()
 #test_save_dao()
 #test_get_answer_nums()
-
+test_execute()

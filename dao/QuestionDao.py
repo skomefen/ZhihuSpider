@@ -20,20 +20,22 @@ class QuestionDao:
 
     def save_question(self, question):
         try:
-            self.find_question(question['id'])
-            self.update_question(question)
-        except:
+            result = self.find_question(question['id'])
+            if result:
+                self.update_question(question)
+                return 
+            
             conn = ConnManager().get_conn()
             c = conn.cursor()
-            try:
-                sql = 'insert into question (id, title,url) values (?,?,?)'
-                u = (question['id'], question['title'],question['url'])
-                c.execute(sql, u)
-            except Exception as e:
-                print('保存失败，错误:' + e)
-            finally:
-                # conn.commit()
-                ConnManager().conn_commit()
+            
+            sql = 'insert into question (id, title,url) values (?,?,?)'
+            u = (question['id'], question['title'],question['url'])
+            c.execute(sql, u)
+        except Exception as e:
+            print('保存失败，错误:' + e)
+        finally:
+            # conn.commit()
+            ConnManager().conn_commit()
 
     def find_question(self, id):
         conn = ConnManager().get_conn()
@@ -41,14 +43,15 @@ class QuestionDao:
         try:
             sql = 'select * from question where id = ?'
             c.execute(sql, (id,))
+            question = None
             for row in c:
-                user = row
+                question = row
         except Exception as e:
             print('查询失败，错误:' + e)
         finally:
             # conn.commit()
             ConnManager().conn_commit()
-        return user
+        return question
 
     def update_question(self, question):
         conn = ConnManager().get_conn()

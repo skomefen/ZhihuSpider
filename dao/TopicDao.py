@@ -20,20 +20,22 @@ class TopicDao:
 
     def save_topic(self, topic):
         try:
-            self.find_topic(topic['id'])
-            self.update_topic(topic)
-        except:
+            result = self.find_topic(topic['id'])
+            if result:
+               self.update_topic(topic)
+               return
+            
             conn = ConnManager().get_conn()
             c = conn.cursor()
-            try:
-                sql = 'insert into topic (id, title,url) values (?,?,?)'
-                u = (topic['id'], topic['title'],topic['url'])
-                c.execute(sql, u)
-            except Exception as e:
-                print('保存失败，错误:' + e)
-            finally:
-                # conn.commit()
-                ConnManager().conn_commit()
+        
+            sql = 'insert into topic (id, title,url) values (?,?,?)'
+            u = (topic['id'], topic['title'],topic['url'])
+            c.execute(sql, u)
+        except Exception as e:
+            print('保存失败，错误:' + e)
+        finally:
+            # conn.commit()
+            ConnManager().conn_commit()
 
     def find_topic(self, id):
         conn = ConnManager().get_conn()
@@ -41,6 +43,7 @@ class TopicDao:
         try:
             sql = 'select * from topic where id = ?'
             c.execute(sql, (id,))
+            topic = None
             for row in c:
                 topic = row
         except Exception as e:

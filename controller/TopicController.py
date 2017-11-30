@@ -8,19 +8,21 @@ from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
 
 from util.Signal import signal
-from dao.save_md import Dao
+from dao.save_md import save_md
 from util import SpiderUtil
+from dao.DaoManager import DaoManager
 
 
 class TopicController:
-    def __init__(self, url, save_folder):
+    def __init__(self, url, save_folder=None):
         """
         :param url:话题路径 
-        :param save_folder:保存文件夹 
+        :param save_folder:保存文件夹 如果不为空则保存为md文件，为空就保存在数据库
         """
         self.url = url
         self.save_folder = save_folder
-        self.dao = Dao()
+        self.dao = save_md()
+        self.dao_manager = DaoManager() 
 
     def get_html(self, url=None, data=None):
         headers = {
@@ -43,21 +45,22 @@ class TopicController:
         item_list = soup.find_all(attrs={'class': 'question_link'})
         soup.f
         question_list = []
-        info = 0
+
         for item in item_list:
             try:
                 href = item['href']
+                id = re.match('^/question/(\d+)$',href)
             except KeyError as e:
                 continue
             question_name = item.text
 
-            question_item = {
-                'info': 0,
-                'url': 'https://www.zhihu.com' + href,
-                'question_name': question_name.strip()
+            question = {
+                'id': id.group(1),
+                'title': question_name.strip(),
+                'url': 'https://www.zhihu.com' + href
             }
 
-            question_list.append(question_item)
+            question_list.append(question)
 
         return question_list
 
@@ -71,7 +74,7 @@ class TopicController:
         num = int(re.search(".*...\s(\d+)\s", pager_text, re.S).group(1))
         return num
 
-    def save_questions_dao(self, content, save_file_name):
+    def save_md(self, content, save_file_name):
 
         self.dao.save(content=content, file_name=save_file_name)
 
@@ -137,18 +140,21 @@ class TopicController:
         #等待上面线程完成
         even.wait()
         #去重复
-        question_list = SpiderUtil.romve_same_dict_with_list('question_name',question_list)
+        question_list = SpiderUtil.romve_same_dict_with_list('title',question_list)
 
-        index = 0
+        if self.save_folder:
+            for question in question_list:
+    
+                print(question)
+                self.save_md(content=question,
+                            save_file_name=self.save_folder + os.path.sep + topic_name + '.md')
+            return question_list
+        
         for question in question_list:
-            index += 1
-            question['info'] = index
-            print(question)
-            self.save_questions_dao(content=question,
-                        save_file_name=self.save_folder + os.path.sep + topic_name + '.md')
-
+            self.dao_manager.svae_dao('question',question)
+        
         end = datetime.datetime.now()
         print("爬虫结束：",end)
         print('花费了：',end-start)
-
+        
         return question_list

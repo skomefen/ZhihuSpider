@@ -15,7 +15,7 @@ def test_save_topic():
 
 
 def test_find_topic():
-    print(t.find_topic('123'))
+    print(t.find_topic('12322'))
 
 
 def test_update_topic():
@@ -23,6 +23,6 @@ def test_update_topic():
     t.update_topic(topic)
 
 
-test_save_topic()
+#test_save_topic()
 test_find_topic()
-test_update_topic()
+#test_update_topic()

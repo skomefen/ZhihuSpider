@@ -4,8 +4,7 @@ a = AnswerDao()
 
 answer = {
     'id' : 'aaaa',
-    'title' : 'bbbbb',
-    'context':'abcabc',
+    'content':'abcabc',
     'url':'aaa',
     'voters':1000,
     'user_id':'abca',

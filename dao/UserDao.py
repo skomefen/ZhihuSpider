@@ -19,20 +19,21 @@ class UserDao:
 
     def save_user(self,user):
         try:
-            self.find_user(user['id'])
-            self.update_user(user)
-        except:
+            result = self.find_user(user['id'])
+            if result:
+                self.update_user(user)
+                return 
             conn = ConnManager().get_conn()
             c = conn.cursor()
-            try:
-                sql = 'insert into user (id, name,url,fans_num) values (?,?,?,?)'
-                u = (user['id'],user['name'],user['url'],user['fans_num'])
-                c.execute(sql,u)
-            except Exception as e:
-                print('保存失败，错误:'+e)
-            finally:
-                #conn.commit()
-                ConnManager().conn_commit()
+            
+            sql = 'insert into user (id, name,url,fans_num) values (?,?,?,?)'
+            u = (user['id'],user['name'],user['url'],user['fans_num'])
+            c.execute(sql,u)
+        except Exception as e:
+            print('保存失败，错误:'+e)
+        finally:
+            #conn.commit()
+            ConnManager().conn_commit()
 
     def find_user(self,id):
         conn = ConnManager().get_conn()
@@ -40,6 +41,7 @@ class UserDao:
         try:
             sql = 'select * from user where id = ?'
             c.execute(sql,(id,))
+            user = None
             for row in c:
                 user = row
         except Exception as e:

@@ -23,9 +23,17 @@ class Topic_QuestionDao:
         conn = ConnManager().get_conn()
         c = conn.cursor()
         try:
-            sql = 'insert into topic_question (topic_id, question_id) values (?,?)'
+            sql = 'select * from topic_question where topic_id = ? and question_id = ?'
             u = (topic_question['topic_id'], topic_question['question_id'])
             c.execute(sql, u)
+            
+            date = None
+            for row in c:
+                date = row
+                
+            if not date:
+                sql = 'insert into topic_question (topic_id, question_id) values (?,?)'
+                c.execute(sql, u)
         except Exception as e:
             print('保存失败,或者该数据已存在，错误:' + e)
         finally:

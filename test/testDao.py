@@ -1,6 +1,6 @@
-from dao.save_md import Dao
+from dao.save_md import save_md
 
-dao = Dao()
+dao = save_md()
 
 def test_save():
     dao.save('aaaaaaaaa')

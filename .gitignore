@@ -1,5 +1,8 @@
-.idea
+.idea/
 db/
 result_file/
 log/
-__pycache__
+__pycache__/ 
+*.bak
+*.pyc
+

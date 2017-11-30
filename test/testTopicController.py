@@ -2,7 +2,7 @@ from controller.TopicController import TopicController
 
 base_url = 'https://www.zhihu.com/topic/20018196/top-answers'
 
-c = TopicController(url=base_url,save_folder='aaa')
+c = TopicController(url=base_url)
 
 def test_get_html():
     print(c.get_html(url=base_url))
