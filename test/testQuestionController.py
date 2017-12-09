@@ -2,6 +2,9 @@ from controller.QuestionController import QuestionController
 from dao.save_md import save_md
 from view.View import View
 from bs4 import BeautifulSoup
+from log import LogCenter
+import os
+import logging
 
 base_url = 'https://www.zhihu.com/question/31361871'
 
@@ -33,8 +36,15 @@ def test_get_answer_nums():
 def test_execute():
     c.execute()
 
+def open_log():
+    seq = os.path.sep
+    path = ".."+seq+"log"+seq+"logging.json."
+    LogCenter.setup_logging(default_path=path)
+
+
 #test_get_html()
 #test_parse_html()
 #test_save_dao()
 #test_get_answer_nums()
+open_log()
 test_execute()

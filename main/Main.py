@@ -1,19 +1,24 @@
-import os
 from controller.TopicController import TopicController
 from controller.QuestionController import QuestionController
-from threading import Event
 from concurrent.futures import ThreadPoolExecutor
 import datetime
 from dao.DaoManager import DaoManager
+from log import LogCenter
+import logging
+import os
 
 def main():
 
+    seq = os.path.sep
+    path = ".."+seq+"log"+seq+"logging.json."
+    LogCenter.setup_logging(default_path=path)
     start = datetime.datetime.now()
-    print('开始时间：',start)
+    
+    logger = logging.getLogger(__name__)
+    logger.info('开始爬虫')
+    #print('开始时间：',start)
 
-    base_url = 'https://www.zhihu.com/topic/20048470/top-answers'
-
-    path_sep = os.path.sep
+    base_url = 'https://www.zhihu.com/topic/20044913/top-answers'
     topic_controller = TopicController(url=base_url)
 
     # 执行爬虫
@@ -25,7 +30,7 @@ def main():
     with ThreadPoolExecutor(max_workers=10) as executor:
         future_list = []
         for question in question_list:
-            question_controller = QuestionController(url=question['url'])
+            question_controller = QuestionController(url=question['url'],name=question['title'])
             future = executor.submit(question_controller.execute)
             future_list.append(future)
 
@@ -40,9 +45,11 @@ def main():
             DaoManager().quit_run()
             break
 
+    logger.info('结束爬虫')
     end = datetime.datetime.now()
-    print('结束时间：',end)
-    print('共花费时间：',end-start)
+    #print('结束时间：',end)
+    #print('共花费时间：',end-start)
+    logger.info('爬虫共花费时间：%s',end-start)
 
 if __name__ == '__main__':
     main()   

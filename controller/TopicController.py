@@ -1,25 +1,28 @@
 import requests
-from bs4 import BeautifulSoup
 import re
 import threading
 import os
 import datetime
 from queue import Queue
 from concurrent.futures import ThreadPoolExecutor
+import logging
+
+from bs4 import BeautifulSoup
 
 from util.Signal import signal
 from dao.save_md import save_md
 from util import SpiderUtil
 from dao.DaoManager import DaoManager
-
+from log import LogCenter
 
 class TopicController:
-    def __init__(self, url, save_folder=None):
+    def __init__(self, url,name="unknow", save_folder=None):
         """
         :param url:话题路径 
         :param save_folder:保存文件夹 如果不为空则保存为md文件，为空就保存在数据库
         """
         self.url = url
+        self.name = name
         self.save_folder = save_folder
         self.dao = save_md()
         self.dao_manager = DaoManager() 
@@ -34,7 +37,6 @@ class TopicController:
         response = requests.get(url=url, headers=headers, data=data)
         html = response.text
         return html
-
     def get_questions(self, html):
         """
 
@@ -43,7 +45,6 @@ class TopicController:
         """
         soup = BeautifulSoup(html, 'lxml')
         item_list = soup.find_all(attrs={'class': 'question_link'})
-        soup.f
         question_list = []
 
         for item in item_list:
@@ -70,8 +71,11 @@ class TopicController:
             html = self.get_html(url=self.url)
 
         soup = BeautifulSoup(html, 'lxml')
-        pager_text = soup.find(attrs={'class': 'zm-invite-pager'}).text
-        num = int(re.search(".*...\s(\d+)\s", pager_text, re.S).group(1))
+        try:
+            pager_text = soup.find(attrs={'class': 'zm-invite-pager'}).text
+            num = int(re.search(".*...\s(\d+)\s", pager_text, re.S).group(1))
+        except AttributeError:
+            num = 1
         return num
 
     def save_md(self, content, save_file_name):
@@ -88,6 +92,9 @@ class TopicController:
         return topic_name
 
     def parse_page_question(self,signal,question_queue,page_num):
+
+        logger = logging.getLogger(__name__)
+
         data = {
             'page': page_num + 1
         }
@@ -96,7 +103,8 @@ class TopicController:
         question_queue.put(self.get_questions(html))
         signal.signal_num_change(-1)
 
-        print("第 ", page_num + 1, " 页问题爬取完毕：", datetime.datetime.now())
+        logger.debug("%s - 第%s页问题爬取完毕",self.name,page_num+1)
+        #print("第 ", page_num + 1, " 页问题爬取完毕：", datetime.datetime.now())
 
     def join_all_question_list(self,signal, question_list, question_queue, even):
         while True:
@@ -110,8 +118,11 @@ class TopicController:
 
     def execute(self):
 
+        logger =  logging.getLogger(__name__)
+
         start = datetime.datetime.now()
-        print('开始爬虫：',start)
+        logger.info("%s - 开始爬取topic页面下的question",self.name)
+        #print('开始爬虫：',start)
 
         url = self.url
         # 获取话题精华第一页
@@ -122,7 +133,7 @@ class TopicController:
         # 获取话题名字
         topic_name = self.get_Topic_name(html)
 
-
+        #创建信号量对象
         s = signal(page_nums)
 
         question_list = []
@@ -145,7 +156,7 @@ class TopicController:
         if self.save_folder:
             for question in question_list:
     
-                print(question)
+                #print(question)
                 self.save_md(content=question,
                             save_file_name=self.save_folder + os.path.sep + topic_name + '.md')
             return question_list
@@ -154,7 +165,11 @@ class TopicController:
             self.dao_manager.svae_dao('question',question)
         
         end = datetime.datetime.now()
-        print("爬虫结束：",end)
-        print('花费了：',end-start)
+
+        logger.info("%s - 结束爬取topic页面下的question",self.name)
+        logger.info("%s - 花费了：%s",self.name,end-start)
+
+        #print("爬虫结束：",end)
+        #print('花费了：',end-start)
         
         return question_list

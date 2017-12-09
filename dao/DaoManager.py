@@ -41,15 +41,12 @@ class DaoManager:
         answer = AnswerDao()
         topic_question = Topic_QuestionDao()
 
-        while True:
-            if DaoManager.__thread_flag__ == False:
-                DaoManager.__thread_flag__ = True
-                ConnManager().conn_close()
-                print('conn close')
-                break
-
+        while self.__thread_flag__:
             date_queue = DaoManager.q
-            date_dict = date_queue.get()
+            try:
+                date_dict = date_queue.get(timeout=5)
+            except:
+                continue
             
             date_type = date_dict['date_type']
             date = date_dict['date']
@@ -72,5 +69,8 @@ class DaoManager:
             #print('queue task done ')
 
             date_queue.task_done()
-            
+
+        #DaoManager.__thread_flag__ = True
+        ConnManager().conn_close()
+        print('conn close')
             

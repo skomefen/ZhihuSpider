@@ -1,9 +1,13 @@
+import logging
+
 from dao.ConnManager import ConnManager
 
 
 class Topic_QuestionDao:
 
     def __init__(self):
+        logger = logging.getLogger(__name__)
+
         conn = ConnManager().get_conn()
         # 表不存在就创建表
         tableIsOK = False
@@ -14,11 +18,13 @@ class Topic_QuestionDao:
                 c.execute(sql)
                 tableIsOK = True
         except Exception as e:
-            print('表已存在')
+            logger.debug("topic_question表已存在")
+            #print('表已存在')
         finally:
             ConnManager().conn_commit()
 
     def save_topic_question(self, topic_question):
+        logger = logging.getLogger(__name__)
 
         conn = ConnManager().get_conn()
         c = conn.cursor()
@@ -35,7 +41,8 @@ class Topic_QuestionDao:
                 sql = 'insert into topic_question (topic_id, question_id) values (?,?)'
                 c.execute(sql, u)
         except Exception as e:
-            print('保存失败,或者该数据已存在，错误:' + e)
+            logger.debug('保存失败,或者该数据已存在，错误:%s',e)
+            #print('保存失败,或者该数据已存在，错误:' + e)
         finally:
             # conn.commit()
             ConnManager().conn_commit()

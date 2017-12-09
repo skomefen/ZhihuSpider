@@ -3,6 +3,7 @@ import re
 import datetime
 import time
 import uuid
+import logging
 
 from bs4 import BeautifulSoup
 
@@ -19,7 +20,7 @@ from dao.DaoManager import DaoManager
 
 class QuestionController:
 
-    def __init__(self,url,save_file_name=None):
+    def __init__(self,url,name="unknow",save_file_name=None):
         '''
         
         :param url: 
@@ -27,6 +28,7 @@ class QuestionController:
         '''
         
         self.url = url
+        self.name = name
         self.save_md = save_md()
         self.dao_manager = DaoManager()
         self.view = View()
@@ -39,7 +41,9 @@ class QuestionController:
             url = self.url
         try:
             begin = datetime.datetime.now()
-            print('start get page',begin)
+            
+            logger = logging.getLogger(__name__)
+            logger.info('%s - 开始获取页面',self.name)
 
             driver = webdriver.PhantomJS()
             driver.get(url)
@@ -67,9 +71,11 @@ class QuestionController:
 
                     page_answer_num = driver.find_elements_by_class_name('CopyrightRichText-richText').__len__()
 
-                    print('加载回答数：',page_answer_num,',总回答数：',max_answer_num,',',datetime.datetime.now())
+                    logger.debug('%s - 加载回答数：%s,总回答数：%s',self.name,page_answer_num,max_answer_num)
+                    #print('加载回答数：',page_answer_num,',总回答数：',max_answer_num,',',datetime.datetime.now())
                 except Exception as e:
-                    print('e:',e,',',datetime.datetime.now(),'等待',config.ANSWER_ERROR_TIME,'秒')
+                    logger.debug('%s - 未获取回答,%s,等待%s秒',self.name,str(e),config.ANSWER_ERROR_TIME)
+                    #print('e:',e,',',datetime.datetime.now(),'等待',config.ANSWER_ERROR_TIME,'秒')
                     flag = True
 
                 finally:
@@ -82,16 +88,23 @@ class QuestionController:
 
         finally:
             end = datetime.datetime.now()
-            print('end get page',end)
-            print('花费时间',end-begin)
+            
+            logger.info('%s - 获取页面完毕',self.name)
+            #print('end get page',end)
+            logger.info('%s - 获取页面花费时间：%s',self.name,end-begin)
+            #print('花费时间',end-begin)
             driver.quit()
 
         return text
 
     def parse_html(self,html_text):
-        
+
+        logger = logging.getLogger(__name__)
+        logger.info('%s - 开始解析页面',self.name)
+
         start = datetime.datetime.now()
-        print('start parse page ',start)
+        #print('start parse page ',start)
+        
         soup = BeautifulSoup(html_text, 'lxml')
         result_list_item = []
 
@@ -127,13 +140,15 @@ class QuestionController:
                 question_id = result.group(1)
 
             except Exception as e:
-                print('读取回答出错,没有获取answer_url')
+                logger.debug('%s - 读取回答出错,没有获取answer_url',self.name)
+                #print('读取回答出错,没有获取answer_url')
                 continue
 
             try:
                 content = item.find(attrs={'itemprop': 'text'}).text
             except Exception as e:
-                print('读取回答出错，没有获取content')
+                logger.debug('%s - 读取回答出错,没有获取content',self.name)
+                #print('读取回答出错，没有获取content')
                 continue
 
             try:
@@ -162,8 +177,10 @@ class QuestionController:
 
             end = datetime.datetime.now()
             
-        print('end parse page',end)
-        print('花费时间',end-start)
+        logger.info("%s - 解析页面完毕",self.name)
+        logger.info("%s - 花费时间：%s",self.name,end-start)
+        #print('end parse page',end)
+        #print('花费时间',end-start)
         return result_list_item
 
     def parse_URL(self,url):
@@ -190,6 +207,8 @@ class QuestionController:
 
     def execute(self):
         
+        logger = logging.getLogger(__name__)
+        logger.info("%s - 开始执行对question页面中的answer的扫描",self.name)
         bash_url = self.url
         
         html = self.get_html(bash_url)
@@ -204,5 +223,6 @@ class QuestionController:
             self.dao_manager.svae_dao('user',item['user'])
             self.dao_manager.svae_dao('answer',item['answer'])
 
+        logger.info("%s - 结束执行对question页面中的answer的扫描",self.name)
 
         
